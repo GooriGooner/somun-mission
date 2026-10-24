@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>소문의 낙원 미션 인증</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="2026 시냇가푸른청년교회 하반기 새생명축제 '소문의 낙원' 미션 인증">
+<meta property="og:title" content="소문의 낙원 미션 인증">
+<meta property="og:description" content="새생명축제 미션 사진을 올려 인증해주세요. 11.29 coming soon">
+<meta property="og:image" content="assets/poster-sm.jpg">
+<meta name="theme-color" content="#2e4a1d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="demo-bar" id="demoBar" hidden>미리보기 모드예요. 올린 내용은 저장되지 않아요.</div>
+
+<header class="hero">
+  <img class="hero-poster" src="assets/poster.jpg" alt="소문의 낙원 11.29 coming soon — 2026 시냇가푸른청년교회 하반기 새생명축제 포스터" width="1600" height="900">
+  <div class="wrap hero-strip">
+    <span class="t">미션 인증소</span>
+    <span class="d" id="dday"><b>11.29</b> coming soon</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h2 class="sec-title"><span id="d-sun"></span>미션 인증하기</h2>
+  <p class="sec-lead">매주 새 미션이 공개돼요. 미션은 몇 번이든 다시 올려도 괜찮고, 공개된 미션이 여러 개면 한 번에 같이 인증할 수 있어요.</p>
+
+  <form class="paper" id="form" novalidate>
+    <div class="fields">
+      <div class="field">
+        <label class="label" for="name">이름</label>
+        <input class="input" id="name" name="name" autocomplete="name" placeholder="예: 홍길동" maxlength="20" required>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label class="label" for="village">소속 마을</label>
+          <select class="select" id="village" name="village" required>
+            <option value="">불러오는 중…</option>
+          </select>
+          <input class="input" id="villageText" name="villageText" placeholder="마을 이름" maxlength="20" hidden>
+        </div>
+        <div class="field">
+          <label class="label" for="phone4">전화번호 뒷자리 <small>4자리</small></label>
+          <input class="input" id="phone4" name="phone4" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="0000" autocomplete="off" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label" id="missionLabel">인증할 미션 <small>공개된 주차 미션 중에서 골라요</small></div>
+        <div class="missions" id="missions" role="group" aria-labelledby="missionLabel">
+          <p class="hint">미션을 불러오는 중이에요…</p>
+        </div>
+        <div class="picked-count" id="pickedCount" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <div class="label" id="photoLabel">인증 사진 <small id="photoMax">최대 3장</small></div>
+        <div class="photos" id="photos" aria-labelledby="photoLabel"></div>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        <span class="hint">사진은 자동으로 줄여서 올라가요.</span>
+      </div>
+
+      <div class="field">
+        <label class="label" for="message">한마디 <small>선택</small></label>
+        <textarea class="textarea" id="message" name="message" maxlength="200" placeholder="미션하면서 있었던 일을 짧게 남겨주세요"></textarea>
+      </div>
+
+      <div class="err-msg" id="formErr" role="alert"></div>
+      <button class="btn btn-main" id="submitBtn" type="submit">인증 올리기</button>
+    </div>
+  </form>
+
+  <section class="paper done" id="done" hidden aria-live="polite">
+    <div class="stamp">인증<small>접수 완료</small></div>
+    <h3 id="doneTitle">소문이 퍼지고 있어요!</h3>
+    <p id="doneText">관리자가 확인하면 승인 도장이 찍혀요.</p>
+    <div class="mini-stamps" id="doneStamps"></div>
+    <button class="btn" type="button" id="againBtn">다른 미션 또 인증하기</button>
+  </section>
+
+  <h2 class="sec-title"><span id="d-crown"></span>내 도장판 보기</h2>
+  <p class="sec-lead">이름과 전화번호 뒷자리로 지금까지 인증한 미션을 확인해요.</p>
+
+  <form class="paper" id="myForm" novalidate>
+    <div class="fields">
+      <div class="row-2">
+        <div class="field">
+          <label class="label" for="myName">이름</label>
+          <input class="input" id="myName" autocomplete="name" placeholder="홍길동" maxlength="20">
+        </div>
+        <div class="field">
+          <label class="label" for="myPhone">뒷자리 4자리</label>
+          <input class="input" id="myPhone" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off">
+        </div>
+      </div>
+      <button class="btn" type="submit" id="myBtn">도장판 보기</button>
+      <div id="myResult"></div>
+    </div>
+  </form>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="doodles" id="footDoodles"></div>
+    <div>2026 시냇가푸른청년교회 하반기 새생명축제 · 소문의 낙원</div>
+    <div style="margin-top:6px"><a href="admin.html">관리자</a></div>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

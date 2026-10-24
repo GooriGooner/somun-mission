@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>소문의 낙원 관리자</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2e4a1d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body class="admin">
+
+<div class="demo-bar" id="demoBar" hidden>미리보기 모드예요. 예시 데이터로 보여드려요. 비밀번호는 <b>demo</b></div>
+
+<header class="adm-head">
+  <div class="adm-wrap adm-head-in">
+    <div class="brand">
+      <span id="brandSun"></span>
+      <div>
+        <div class="brand-t">소문의 낙원 · 관리자</div>
+        <div class="brand-s">새생명축제 미션 인증 확인</div>
+      </div>
+    </div>
+    <div class="head-actions" id="headActions" hidden>
+      <button class="btn btn-sm btn-ghost" type="button" id="refreshBtn">새로고침</button>
+      <a class="btn btn-sm btn-ghost" id="sheetLink" href="#" target="_blank" rel="noopener" hidden>구글시트 열기</a>
+      <button class="btn btn-sm btn-yellow" type="button" id="exportBtn">엑셀 다운로드</button>
+      <button class="btn btn-sm btn-ghost" type="button" id="logoutBtn">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<!-- 로그인 -->
+<main class="adm-wrap" id="loginView">
+  <form class="paper login" id="loginForm" novalidate>
+    <div class="login-crown" id="loginCrown"></div>
+    <h1 class="login-t">관리자 확인</h1>
+    <p class="hint">구글 Apps Script에 정해둔 관리자 비밀번호를 입력하세요.</p>
+    <div class="field">
+      <label class="label" for="pw">비밀번호</label>
+      <input class="input" type="password" id="pw" autocomplete="current-password">
+    </div>
+    <div class="err-msg" id="loginErr" role="alert"></div>
+    <button class="btn btn-main" type="submit" id="loginBtn">들어가기</button>
+    <a class="back" href="index.html">← 인증 페이지로</a>
+  </form>
+</main>
+
+<!-- 대시보드 -->
+<main class="adm-wrap" id="dashView" hidden>
+
+  <section class="stats" id="stats" aria-label="요약"></section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab on" role="tab" aria-selected="true" data-tab="list" id="tab-list">인증 목록</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="people" id="tab-people">참가자별 현황</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="missions" id="tab-missions">미션별 현황</button>
+  </div>
+
+  <!-- 인증 목록 -->
+  <section id="pane-list" role="tabpanel" aria-labelledby="tab-list">
+    <div class="filters paper">
+      <div class="seg" id="statusSeg" role="group" aria-label="상태">
+        <button type="button" data-s="" class="on">전체</button>
+        <button type="button" data-s="대기">확인 대기</button>
+        <button type="button" data-s="승인">승인</button>
+        <button type="button" data-s="반려">반려</button>
+      </div>
+      <div class="filter-row">
+        <select class="select" id="fMission" aria-label="미션"></select>
+        <select class="select" id="fVillage" aria-label="마을"></select>
+        <input class="input" id="fSearch" type="search" placeholder="이름·뒷자리·한마디 검색" aria-label="검색">
+      </div>
+      <div class="bulk">
+        <label class="bulk-all"><input type="checkbox" id="checkAll"> 보이는 것 전체 선택</label>
+        <span class="bulk-n" id="bulkN"></span>
+        <button class="btn btn-sm btn-ok" type="button" id="bulkOk" disabled>선택 승인</button>
+        <button class="btn btn-sm btn-no" type="button" id="bulkNo" disabled>선택 반려</button>
+      </div>
+    </div>
+    <div class="count-line" id="countLine"></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- 참가자별 -->
+  <section id="pane-people" role="tabpanel" aria-labelledby="tab-people" hidden>
+    <div class="paper table-paper">
+      <div class="table-scroll"><table class="tbl" id="peopleTable"></table></div>
+    </div>
+    <p class="note">● 승인 · ○ 확인 대기 · 빈칸은 아직 인증 없음. 같은 이름이라도 마을·뒷자리가 다르면 다른 사람으로 셉니다.</p>
+  </section>
+
+  <!-- 미션별 -->
+  <section id="pane-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+    <div class="mbars" id="missionBars"></div>
+  </section>
+</main>
+
+<!-- 사진 크게 보기 -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lb-x" type="button" id="lbClose" aria-label="닫기">×</button>
+  <img id="lbImg" alt="">
+  <a class="btn btn-sm" id="lbOpen" href="#" target="_blank" rel="noopener">원본 열기</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>
