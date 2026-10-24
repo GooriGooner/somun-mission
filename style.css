@@ -294,22 +294,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ---------- 완료 화면 ---------- */
 .done { text-align: center; padding: 34px 20px 28px; }
 .stamp {
-  width: 170px; height: 170px;
-  margin: 0 auto 16px;
-  border: 5px solid var(--no);
+  width: 210px; height: 210px;
+  max-width: 100%;
+  margin: 0 auto 14px;
   color: var(--no);
-  border-radius: 50%;
-  display: grid; place-items: center;
-  font-family: var(--font-hand);
-  font-weight: 700;
-  font-size: 36px;
-  line-height: 1;
-  transform: rotate(-12deg);
-  box-shadow: inset 0 0 0 5px var(--paper), inset 0 0 0 8px var(--no);
+  transform: rotate(-10deg);
   animation: stampIn .45s cubic-bezier(.2, 1.6, .4, 1) both;
 }
-.stamp small { display: block; font-size: 18px; margin-top: 4px; }
-@keyframes stampIn { from { transform: rotate(-12deg) scale(1.8); opacity: 0; } to { transform: rotate(-12deg) scale(1); opacity: 1; } }
+.stamp img { width: 100%; height: 100%; display: block; }
+.stamp .st-top { font-family: var(--font-hand); font-weight: 700; font-size: 29px; letter-spacing: 1px; }
+.stamp .st-bot { font-family: var(--font-body); font-weight: 700; font-size: 11.5px; letter-spacing: 2px; }
+@keyframes stampIn { from { transform: rotate(-10deg) scale(1.8); opacity: 0; } to { transform: rotate(-10deg) scale(1); opacity: 1; } }
 .done h3 { font-family: var(--font-hand); font-size: 32px; margin: 0 0 4px; line-height: 1.15; }
 .done p { margin: 0 0 18px; color: var(--ink-2); }
 .done .mini-stamps { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }

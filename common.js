@@ -20,6 +20,49 @@
     return `<span class="doodle ${cls || ""}" aria-hidden="true">${DOODLES[name] || ""}</span>`;
   }
 
+
+  /* "참 잘했어요" 도장 — 가운데 엄지척 하는 양 */
+  function stampSVG() {
+    const P = "#fffce9";
+    const wool = [[78,100,16],[98,92,17],[118,98,16],[126,116,15],[116,132,15],[96,136,16],[76,130,15],[70,114,14],[98,114,26]]
+      .map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor"/>`).join("");
+    return `<svg viewBox="0 0 200 200" aria-hidden="true">
+  <defs>
+    <filter id="stInk" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -9 6.9" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+    <path id="stArcTop" d="M 38 100 A 62 62 0 0 1 162 100"/>
+    <path id="stArcBot" d="M 30 100 A 70 70 0 0 0 170 100"/>
+  </defs>
+  <g filter="url(#stInk)">
+    <circle cx="100" cy="100" r="93" fill="none" stroke="currentColor" stroke-width="7"/>
+    <circle cx="100" cy="100" r="84" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text class="st-top" fill="currentColor" text-anchor="middle"><textPath href="#stArcTop" startOffset="50%" textLength="148" lengthAdjust="spacingAndGlyphs">참 잘했어요</textPath></text>
+    <text class="st-bot" fill="currentColor" text-anchor="middle"><textPath href="#stArcBot" startOffset="50%" textLength="112" lengthAdjust="spacingAndGlyphs">소문의 낙원 · 11.29</textPath></text>
+    <!-- 양 -->
+    ${wool}
+    <rect x="85" y="146" width="7" height="12" rx="3" fill="currentColor"/>
+    <rect x="104" y="146" width="7" height="12" rx="3" fill="currentColor"/>
+    <ellipse cx="76" cy="105" rx="10" ry="5" transform="rotate(-28 76 105)" fill="${P}" stroke="currentColor" stroke-width="3"/>
+    <ellipse cx="120" cy="105" rx="10" ry="5" transform="rotate(28 120 105)" fill="${P}" stroke="currentColor" stroke-width="3"/>
+    <ellipse cx="98" cy="112" rx="17" ry="20" fill="${P}" stroke="currentColor" stroke-width="3"/>
+    <circle cx="91" cy="94" r="6" fill="currentColor"/><circle cx="99" cy="91" r="6.5" fill="currentColor"/><circle cx="107" cy="94" r="6" fill="currentColor"/>
+    <path d="M88 110q3.5-4.5 7 0M101 110q3.5-4.5 7 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="87" cy="118" r="3" fill="currentColor" opacity=".35"/><circle cx="109" cy="118" r="3" fill="currentColor" opacity=".35"/>
+    <path d="M92 120q6 6 12 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    <!-- 엄지척 -->
+    <path d="M122 124l9-5" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+    <path d="M136 108v-13a4.5 4.5 0 0 1 9 0v13" fill="${P}" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="129" y="107" width="22" height="20" rx="6" fill="${P}" stroke="currentColor" stroke-width="3"/>
+    <path d="M131 114h18M131 120h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M162 112l2.2 5.8 5.8 2.2-5.8 2.2-2.2 5.8-2.2-5.8-5.8-2.2 5.8-2.2z" fill="currentColor"/>
+    <path d="M157 94l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="currentColor"/>
+  </g>
+</svg>`;
+  }
+
   /* ---------- 유틸 ---------- */
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -141,7 +184,7 @@
             const row = {
               id: "DEMO" + (200 + demoRows.length), time: new Date().toISOString(),
               name: p.name, village: p.village, phone4: p.phone4, missions: p.missions.slice(),
-              message: p.message || "", status: "대기", memo: "", reviewedAt: "",
+              message: p.message || "", status: "승인", memo: "", reviewedAt: new Date().toISOString(),
               photos: (p.photos || []).map((x) => ({ id: "", url: x.data, thumb: x.data }))
             };
             demoRows.unshift(row);
@@ -169,5 +212,5 @@
     });
   }
 
-  window.Festival = { CFG, DEMO, doodle, esc, fmtTime, fmtFull, toast, shrinkImage, call, STATUS_CLASS };
+  window.Festival = { CFG, DEMO, doodle, stampSVG, esc, fmtTime, fmtFull, toast, shrinkImage, call, STATUS_CLASS };
 })();

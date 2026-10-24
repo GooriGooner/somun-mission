@@ -92,12 +92,13 @@
     const map = new Map();
     rows.forEach((r) => {
       const k = personKey(r);
-      if (!map.has(k)) map.set(k, { name: r.name, village: r.village, phone4: r.phone4, count: 0, st: {}, last: r.time });
+      if (!map.has(k)) map.set(k, { name: r.name, village: r.village, phone4: r.phone4, count: 0, st: {}, cnt: {}, last: r.time });
       const p = map.get(k);
       p.count++;
       if (String(r.time) > String(p.last)) p.last = r.time;
       r.missions.forEach((n) => {
         const cur = p.st[n];
+        if (r.status !== "반려") p.cnt[n] = (p.cnt[n] || 0) + 1;
         if (r.status === "승인") p.st[n] = "승인";
         else if (r.status === "대기" && cur !== "승인") p.st[n] = "대기";
         else if (r.status === "반려" && !cur) p.st[n] = "반려";
@@ -107,7 +108,7 @@
   }
 
   /* ---------- 그리기 ---------- */
-  function renderAll() { renderStats(); renderList(); renderPeople(); renderMissionBars(); }
+  function renderAll() { renderStats(); renderList(); renderPeople(); renderVillages(); renderMissionBars(); }
 
   function renderStats() {
     const ps = people();
@@ -195,11 +196,27 @@
       return `<tr class="${full ? "full" : ""}">
         <td>${F.esc(p.name)}</td><td>${F.esc(p.village)}</td><td>${F.esc(p.phone4)}</td>
         <td class="c">${p.count}</td>
-        ${missions.map((m) => { const s = p.st[m.no]; return s === "승인" ? `<td class="c dot-ok" title="승인">●</td>` : s === "대기" ? `<td class="c dot-wait" title="확인 대기">○</td>` : s === "반려" ? `<td class="c" title="반려" style="color:var(--no)">×</td>` : `<td class="c"></td>`; }).join("")}
+        ${missions.map((m) => { const s = p.st[m.no]; return s === "승인" ? `<td class="c dot-ok" title="승인 ${p.cnt[m.no] || 1}회">●${p.cnt[m.no] > 1 ? `<small style="font-size:12px;margin-left:2px">${p.cnt[m.no]}</small>` : ""}</td>` : s === "대기" ? `<td class="c dot-wait" title="확인 대기">○</td>` : s === "반려" ? `<td class="c" title="반려" style="color:var(--no)">×</td>` : `<td class="c"></td>`; }).join("")}
         <td class="c">${full ? `<span class="badge-full">완주!</span>` : `${p.okN} / ${missions.length}`}</td>
         <td>${F.esc(F.fmtTime(p.last))}</td></tr>`;
     }).join("");
     $("peopleTable").innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+  }
+
+  function villageStats() {
+    const names = [...new Set([...villages, ...rows.map((r) => r.village)].filter(Boolean))];
+    const live = rows.filter((r) => r.status !== "반려");
+    const one = (list, label) => {
+      const per = missions.map((m) => list.filter((r) => r.missions.includes(m.no)).length);
+      return { village: label, per, sum: per.reduce((a, b) => a + b, 0), subs: list.length, people: new Set(list.map((r) => r.name + "|" + r.phone4)).size };
+    };
+    return { total: one(live, "전체"), list: names.map((v) => one(live.filter((r) => r.village === v), v)) };
+  }
+  function renderVillages() {
+    const { total, list } = villageStats();
+    const head = `<tr><th>마을</th>${missions.map((m) => `<th class="c">${m.no}주차</th>`).join("")}<th class="c">미션 합계</th><th class="c">인증 횟수</th><th class="c">참여 인원</th></tr>`;
+    const row = (v, cls) => `<tr class="${cls || ""}"><td>${F.esc(v.village)}</td>${v.per.map((n) => `<td class="c">${n || ""}</td>`).join("")}<td class="c"><b>${v.sum}</b></td><td class="c">${v.subs}</td><td class="c">${v.people}</td></tr>`;
+    $("villageTable").innerHTML = `<thead>${head}</thead><tbody>${row(total, "full")}${list.map((v) => row(v)).join("")}</tbody>`;
   }
 
   function missionStats() {
@@ -241,7 +258,7 @@
   document.querySelector(".tabs").addEventListener("click", (e) => {
     const t = e.target.closest(".tab"); if (!t) return;
     document.querySelectorAll(".tab").forEach((x) => { const on = x === t; x.classList.toggle("on", on); x.setAttribute("aria-selected", on); });
-    ["list", "people", "missions"].forEach((k) => { $("pane-" + k).hidden = k !== t.dataset.tab; });
+    ["list", "people", "villages", "missions"].forEach((k) => { $("pane-" + k).hidden = k !== t.dataset.tab; });
   });
 
   $("checkAll").addEventListener("change", (e) => {
@@ -319,8 +336,8 @@
     });
 
     const ps = people().sort((a, b) => a.village.localeCompare(b.village, "ko") || a.name.localeCompare(b.name, "ko"));
-    const ppl = [["이름", "마을", "전화뒷자리", "인증 횟수", ...missions.map((m) => `${m.no}주차 ${m.title}`), "승인된 미션 수", "완주", "최근 인증"]];
-    ps.forEach((p) => ppl.push([p.name, p.village, p.phone4, p.count, ...missions.map((m) => p.st[m.no] || ""), p.okN, p.okN === missions.length ? "완주" : "", F.fmtFull(p.last)]));
+    const ppl = [["이름", "마을", "전화뒷자리", "인증 횟수", ...missions.map((m) => `${m.no}주차 ${m.title} (횟수)`), "승인된 미션 수", "완주", "최근 인증"]];
+    ps.forEach((p) => ppl.push([p.name, p.village, p.phone4, p.count, ...missions.map((m) => p.cnt[m.no] || (p.st[m.no] === "반려" ? "반려" : "")), p.okN, p.okN === missions.length ? "완주" : "", F.fmtFull(p.last)]));
 
     const ms = [["주차", "미션 이름", "인증 건수", "승인", "확인 대기", "반려", "승인받은 사람 수"]];
     missionStats().forEach((s) => ms.push([s.no, s.title, s.total, s.ok, s.wait, s.rej, s.okPeople]));
@@ -335,6 +352,10 @@
     add(sub, "제출내역", [16, 17, 10, 10, 10, ...missions.map(() => 7), 12, 30, 7, 20, 17, ...Array(maxPh).fill(40)]);
     add(ppl, "참가자별 현황", [10, 10, 10, 9, ...missions.map(() => 16), 13, 7, 17]);
     add(ms, "미션별 현황", [9, 26, 10, 7, 9, 7, 15]);
+    const vs = villageStats();
+    const vil = [["마을", ...missions.map((m) => `${m.no}주차`), "미션 합계", "인증 횟수", "참여 인원"]];
+    [vs.total, ...vs.list].forEach((v) => vil.push([v.village, ...v.per, v.sum, v.subs, v.people]));
+    add(vil, "마을별 현황", [16, ...missions.map(() => 8), 10, 10, 10]);
 
     const d = new Date();
     const p2 = (n) => String(n).padStart(2, "0");

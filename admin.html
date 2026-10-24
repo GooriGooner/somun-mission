@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600&display=swap">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="admin.css?v=8">
 </head>
 <body class="admin">
 
@@ -59,6 +59,7 @@
   <div class="tabs" role="tablist">
     <button class="tab on" role="tab" aria-selected="true" data-tab="list" id="tab-list">인증 목록</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="people" id="tab-people">참가자별 현황</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="villages" id="tab-villages">마을별 현황</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="missions" id="tab-missions">미션별 현황</button>
   </div>
 
@@ -92,10 +93,17 @@
     <div class="paper table-paper">
       <div class="table-scroll"><table class="tbl" id="peopleTable"></table></div>
     </div>
-    <p class="note">● 승인 · ○ 확인 대기 · 빈칸은 아직 인증 없음. 같은 이름이라도 마을·뒷자리가 다르면 다른 사람으로 셉니다.</p>
+    <p class="note">● 승인 (옆 숫자는 같은 미션을 여러 번 인증한 횟수) · ○ 확인 대기 · 빈칸은 아직 인증 없음. 같은 이름이라도 마을·뒷자리가 다르면 다른 사람으로 셉니다.</p>
   </section>
 
   <!-- 미션별 -->
+  <section id="pane-villages" role="tabpanel" aria-labelledby="tab-villages" hidden>
+    <div class="paper table-paper">
+      <div class="table-scroll"><table class="tbl" id="villageTable"></table></div>
+    </div>
+    <p class="note">주차별 숫자는 그 미션을 인증한 횟수예요. 반려된 인증은 빼고 셉니다. 참여 인원은 이름 + 뒷자리 기준으로 한 번씩만 셉니다.</p>
+  </section>
+
   <section id="pane-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
     <div class="mbars" id="missionBars"></div>
   </section>
@@ -109,8 +117,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="config.js"></script>
-<script src="common.js"></script>
-<script src="admin.js"></script>
+<script src="config.js?v=8"></script>
+<script src="common.js?v=8"></script>
+<script src="admin.js?v=8"></script>
 </body>
 </html>

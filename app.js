@@ -166,7 +166,7 @@
       store.set({ name, village, phone4 });
       $("myName").value = name; $("myPhone").value = phone4;
       $("doneTitle").textContent = `${name}님, 소문이 퍼지고 있어요!`;
-      $("doneText").textContent = "관리자가 확인하면 승인 도장이 찍혀요. 아래 도장판에서 확인할 수 있어요.";
+      $("doneText").textContent = "도장이 바로 찍혔어요. 아래 도장판에서 모은 도장을 볼 수 있어요.";
       $("doneStamps").innerHTML = ms.map((n) => `<span class="mchip">${n}주차</span>`).join("");
       $("form").hidden = true;
       $("done").hidden = false;
@@ -210,7 +210,9 @@
     const total = missions.length ? missions.map((m) => m.no) : [1, 2, 3, 4, 5];
     if (!records.length) return `<p class="hint" style="margin-top:4px">아직 인증 기록이 없어요. 위에서 첫 미션을 올려보세요!</p>`;
     const state = {};
+    const times = {};
     records.forEach((r) => (r.missions || []).forEach((n) => {
+      if (r.status !== "반려") times[n] = (times[n] || 0) + 1;
       if (r.status === "승인") state[n] = "ok";
       else if (r.status === "대기" && state[n] !== "ok") state[n] = "wait";
     }));
@@ -218,7 +220,7 @@
     const cells = total.map((n) => {
       const s = state[n];
       const lk = (missions.find((m) => m.no === n) || {}).locked;
-      return `<div class="cell ${s || (lk ? "locked" : "")}" title="${n}주차 미션${lk ? " (비공개)" : ""}">${lk && !s ? F.doodle("lock") : `${n}<small>주차</small>`}${s === "ok" ? `<span class="tag">승인</span>` : s === "wait" ? `<span class="tag">확인 중</span>` : ""}</div>`;
+      return `<div class="cell ${s || (lk ? "locked" : "")}" title="${n}주차 미션${lk ? " (비공개)" : ""}">${lk && !s ? F.doodle("lock") : `${n}<small>주차</small>`}${s === "ok" ? `<span class="tag">${times[n] > 1 ? `${times[n]}회` : "승인"}</span>` : s === "wait" ? `<span class="tag">확인 중</span>` : ""}</div>`;
     }).join("");
     const list = records.slice().sort((a, b) => String(b.time).localeCompare(String(a.time))).map((r) => `
       <div class="my-item">
@@ -228,7 +230,7 @@
         ${r.status === "반려" && r.memo ? `<span class="hint">· ${F.esc(r.memo)}</span>` : ""}
       </div>`).join("");
     return `
-      <div style="font-family:var(--font-hand);font-size:24px;font-weight:700;margin:4px 0 10px">승인된 미션 ${okCount} / ${total.length}${okCount === total.length ? " · 완주!" : ""}</div>
+      <div style="font-family:var(--font-hand);font-size:24px;font-weight:700;margin:4px 0 10px">승인된 미션 ${okCount} / ${total.length}${okCount === total.length ? " · 완주!" : ""}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--ink-2);margin-left:8px">총 ${Object.values(times).reduce((a, b) => a + b, 0)}회 인증</span></div>
       <div class="board">${cells}</div>
       <div class="my-list">${list}</div>`;
   }
