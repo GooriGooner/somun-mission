@@ -14,7 +14,7 @@
   $("d-crown").outerHTML = F.doodle("crown");
   $("footDoodles").innerHTML = F.doodle("cloud") + F.doodle("tulip") + F.doodle("sun") + F.doodle("tulip") + F.doodle("bird");
   if (F.DEMO) $("demoBar").hidden = false;
-  $("photoMax").textContent = `최대 ${MAX}장`;
+  $("photoMax").textContent = `선택 · 최대 ${MAX}장`;
 
   // D-day
   (function () {
@@ -150,7 +150,6 @@
     if (!village) problems.push("소속 마을");
     if (!/^\d{4}$/.test(phone4)) problems.push("전화번호 뒷자리 4자리");
     if (!picked.size) problems.push("미션 (1개 이상)");
-    if (!photos.length) problems.push("인증 사진 (1장 이상)");
     if (problems.length) { err.textContent = `${problems.join(", ")}을(를) 채워주세요.`; return; }
     if (photos.some((p) => p.busy)) { err.textContent = "사진을 준비하고 있어요. 잠깐만 기다려주세요."; return; }
 
