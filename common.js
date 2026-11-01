@@ -190,6 +190,20 @@
             }));
             return resolve({ ok: true, id: base });
           }
+          case "ranking": {
+            const m = {};
+            demoRows.filter((r) => r.status === "승인").forEach((r) => {
+              const k = r.village + "|" + r.name + "|" + r.phone4;
+              const p = m[k] || (m[k] = { name: r.name, village: r.village, count: 0, last: "" });
+              p.count += r.missions.length;
+              if (r.time > p.last) p.last = r.time;
+            });
+            const extra = [["윤소망", "소망", 9], ["강믿음", "믿음", 7], ["서사랑", "사랑", 6], ["문예준", "운영위원회", 5], ["임하은", "새가족(웰컴팀)", 4], ["조은찬", "사랑", 4], ["배시온", "믿음", 3], ["노아린", "소망", 2]];
+            extra.forEach(([name, village, count], i) => { m["x" + i] = { name, village, count, last: String(i) }; });
+            const top = Object.values(m).sort((a, b) => b.count - a.count || String(a.last).localeCompare(String(b.last))).slice(0, 10)
+              .map((p, i) => ({ rank: i + 1, name: p.name, village: p.village, count: p.count }));
+            return resolve({ ok: true, ranking: top, updatedAt: new Date().toISOString() });
+          }
           case "my": {
             const rows = demoRows.filter((r) => r.name === p.name.trim() && r.phone4 === p.phone4);
             return resolve({ ok: true, records: rows.map((r) => ({ time: r.time, missions: r.missions, status: r.status, memo: r.memo })) });

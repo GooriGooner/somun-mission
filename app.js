@@ -12,6 +12,7 @@
   /* ---------- 장식 ---------- */
   $("d-sun").outerHTML = F.doodle("sun");
   $("d-crown").outerHTML = F.doodle("crown");
+  $("d-trophy").outerHTML = F.doodle("crown");
   $("footDoodles").innerHTML = F.doodle("cloud") + F.doodle("tulip") + F.doodle("sun") + F.doodle("tulip") + F.doodle("bird");
   if (F.DEMO) $("demoBar").hidden = false;
   $("photoMax").textContent = `선택 · 최대 ${MAX}장`;
@@ -181,6 +182,30 @@
       btn.textContent = "인증 올리기";
     }
   });
+
+  /* ---------- 랭킹 ---------- */
+  async function loadRanking() {
+    const list = $("rankList");
+    $("rankBtn").disabled = true;
+    try {
+      const { ranking = [], updatedAt } = await F.call({ action: "ranking" });
+      if (!ranking.length) {
+        list.innerHTML = `<li class="rank-empty">아직 승인된 인증이 없어요. 첫 번째 소문왕이 되어보세요!</li>`;
+      } else {
+        list.innerHTML = ranking.map((r) => `
+          <li class="rank-row r${r.rank <= 3 ? r.rank : "n"}">
+            <span class="rank-no">${r.rank}</span>
+            <span class="rank-who"><b>${F.esc(r.name)}</b><span>${F.esc(r.village)}</span></span>
+            <span class="rank-cnt"><b>${r.count}</b>개</span>
+          </li>`).join("");
+      }
+      $("rankTime").textContent = updatedAt ? `${F.fmtTime(updatedAt)} 기준` : "";
+    } catch (e) {
+      list.innerHTML = `<li class="rank-empty">${F.esc(e.message)}</li>`;
+    } finally { $("rankBtn").disabled = false; }
+  }
+  $("rankBtn").addEventListener("click", loadRanking);
+  loadRanking();
 
   $("againBtn").addEventListener("click", () => {
     $("done").hidden = true;
