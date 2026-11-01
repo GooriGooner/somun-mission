@@ -98,7 +98,7 @@
       if (String(r.time) > String(p.last)) p.last = r.time;
       r.missions.forEach((n) => {
         const cur = p.st[n];
-        if (r.status !== "반려") p.cnt[n] = (p.cnt[n] || 0) + 1;
+        if (r.status === "승인") p.cnt[n] = (p.cnt[n] || 0) + 1;
         if (r.status === "승인") p.st[n] = "승인";
         else if (r.status === "대기" && cur !== "승인") p.st[n] = "대기";
         else if (r.status === "반려" && !cur) p.st[n] = "반려";
@@ -205,7 +205,7 @@
 
   function villageStats() {
     const names = [...new Set([...villages, ...rows.map((r) => r.village)].filter(Boolean))];
-    const live = rows.filter((r) => r.status !== "반려");
+    const live = rows.filter((r) => r.status === "승인");
     const one = (list, label) => {
       const per = missions.map((m) => list.filter((r) => r.missions.includes(m.no)).length);
       return { village: label, per, sum: per.reduce((a, b) => a + b, 0), subs: list.length, people: new Set(list.map((r) => r.name + "|" + r.phone4)).size };

@@ -165,8 +165,8 @@
       });
       store.set({ name, village, phone4 });
       $("myName").value = name; $("myPhone").value = phone4;
-      $("doneTitle").textContent = `${name}님, 소문이 퍼지고 있어요!`;
-      $("doneText").textContent = "도장이 바로 찍혔어요. 아래 도장판에서 모은 도장을 볼 수 있어요.";
+      $("doneTitle").textContent = `${name}님, 인증이 접수됐어요!`;
+      $("doneText").textContent = "관리자가 확인하면 도장판에 승인 도장이 찍혀요. 아래 도장판에서 진행 상황을 볼 수 있어요.";
       $("doneStamps").innerHTML = ms.map((n) => `<span class="mchip">${n}주차</span>`).join("");
       $("form").hidden = true;
       $("done").hidden = false;
@@ -212,7 +212,7 @@
     const state = {};
     const times = {};
     records.forEach((r) => (r.missions || []).forEach((n) => {
-      if (r.status !== "반려") times[n] = (times[n] || 0) + 1;
+      if (r.status === "승인") times[n] = (times[n] || 0) + 1;
       if (r.status === "승인") state[n] = "ok";
       else if (r.status === "대기" && state[n] !== "ok") state[n] = "wait";
     }));
@@ -230,7 +230,7 @@
         ${r.status === "반려" && r.memo ? `<span class="hint">· ${F.esc(r.memo)}</span>` : ""}
       </div>`).join("");
     return `
-      <div style="font-family:var(--font-hand);font-size:24px;font-weight:700;margin:4px 0 10px">승인된 미션 ${okCount} / ${total.length}${okCount === total.length ? " · 완주!" : ""}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--ink-2);margin-left:8px">총 ${Object.values(times).reduce((a, b) => a + b, 0)}회 인증</span></div>
+      <div style="font-family:var(--font-hand);font-size:24px;font-weight:700;margin:4px 0 10px">승인된 미션 ${okCount} / ${total.length}${okCount === total.length ? " · 완주!" : ""}<span style="font-family:var(--font-body);font-size:14px;font-weight:400;color:var(--ink-2);margin-left:8px">승인 ${Object.values(times).reduce((a, b) => a + b, 0)}회</span></div>
       <div class="board">${cells}</div>
       <div class="my-list">${list}</div>`;
   }

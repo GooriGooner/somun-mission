@@ -184,7 +184,7 @@
             const row = {
               id: "DEMO" + (200 + demoRows.length), time: new Date().toISOString(),
               name: p.name, village: p.village, phone4: p.phone4, missions: p.missions.slice(),
-              message: p.message || "", status: "승인", memo: "", reviewedAt: new Date().toISOString(),
+              message: p.message || "", status: "대기", memo: "", reviewedAt: "",
               photos: (p.photos || []).map((x) => ({ id: "", url: x.data, thumb: x.data }))
             };
             demoRows.unshift(row);
