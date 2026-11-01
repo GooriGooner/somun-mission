@@ -181,14 +181,14 @@
           case "submit": {
             const closed = DEMO_CONFIG.missions.filter((m) => m.locked).map((m) => m.no);
             if (p.missions.some((n) => closed.includes(n))) return reject(new Error("아직 공개되지 않은 미션이 들어 있어요."));
-            const row = {
-              id: "DEMO" + (200 + demoRows.length), time: new Date().toISOString(),
-              name: p.name, village: p.village, phone4: p.phone4, missions: p.missions.slice(),
-              message: p.message || "", status: "대기", memo: "", reviewedAt: "",
-              photos: (p.photos || []).map((x) => ({ id: "", url: x.data, thumb: x.data }))
-            };
-            demoRows.unshift(row);
-            return resolve({ ok: true, id: row.id });
+            const base = "DEMO" + (200 + demoRows.length), t = new Date().toISOString();
+            const ph = (p.photos || []).map((x) => ({ id: "", url: x.data, thumb: x.data }));
+            p.missions.slice().reverse().forEach((n) => demoRows.unshift({
+              id: p.missions.length > 1 ? base + "-" + n : base, time: t,
+              name: p.name, village: p.village, phone4: p.phone4, missions: [n],
+              message: p.message || "", status: "대기", memo: "", reviewedAt: "", photos: ph
+            }));
+            return resolve({ ok: true, id: base });
           }
           case "my": {
             const rows = demoRows.filter((r) => r.name === p.name.trim() && r.phone4 === p.phone4);

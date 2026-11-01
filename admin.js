@@ -151,6 +151,12 @@
     $("bulkOk").disabled = $("bulkNo").disabled = !selected.size;
   }
 
+  function together(r) {
+    const m = /^(.*)-\d+$/.exec(r.id);
+    if (!m) return "";
+    const n = rows.filter((x) => x.id.startsWith(m[1] + "-")).length;
+    return n > 1 ? ` · 함께 올린 ${n}건 중 하나` : "";
+  }
   function cardHTML(r) {
     const mTitle = (n) => (missions.find((m) => m.no === n) || {}).title || "";
     const photos = r.photos.length
@@ -175,7 +181,7 @@
             <input type="checkbox" data-sel="${F.esc(r.id)}" ${selected.has(r.id) ? "checked" : ""} aria-label="${F.esc(r.name)} 인증 선택">
             <div class="c-who">
               <div class="c-name">${F.esc(r.name)} <span class="c-meta">· ${F.esc(r.village)} · ${F.esc(r.phone4)}</span></div>
-              <div class="c-meta">${F.esc(F.fmtFull(r.time))}${r.reviewedAt ? ` · 처리 ${F.esc(F.fmtTime(r.reviewedAt))}` : ""}</div>
+              <div class="c-meta">${F.esc(F.fmtFull(r.time))}${together(r)}${r.reviewedAt ? ` · 처리 ${F.esc(F.fmtTime(r.reviewedAt))}` : ""}</div>
             </div>
             <span class="pill ${F.STATUS_CLASS[r.status] || "wait"}">${F.esc(r.status)}</span>
           </div>
