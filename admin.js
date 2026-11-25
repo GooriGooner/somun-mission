@@ -54,7 +54,7 @@
     const data = await F.call({ action: "list", password: pw || password });
     rows = (data.rows || []).map(normalize).sort((a, b) => String(b.time).localeCompare(String(a.time)));
     missions = (data.missions || []).filter((m) => m && (m.title || m.locked)).map((m) => ({ ...m, title: m.title || "비공개 미션" }));
-    if (!missions.length) missions = [1, 2, 3, 4, 5].map((n) => ({ no: n, title: `${n}주차 미션` }));
+    if (!missions.length) missions = [1, 2, 3, 4, 5].map((n) => ({ no: n, title: F.mlong(n) }));
     villages = (data.villages || []).filter(Boolean);
     sheetUrl = data.sheetUrl || "";
     $("sheetLink").hidden = !sheetUrl;
@@ -80,7 +80,7 @@
 
   function buildFilterOptions() {
     const vs = [...new Set([...villages, ...rows.map((r) => r.village)].filter(Boolean))];
-    $("fMission").innerHTML = `<option value="">모든 미션</option>` + missions.map((m) => `<option value="${m.no}">${m.no}주차 · ${F.esc(m.title)}${m.locked ? " (비공개)" : ""}</option>`).join("");
+    $("fMission").innerHTML = `<option value="">모든 미션</option>` + missions.map((m) => `<option value="${m.no}">${F.mshort(m.no)} · ${F.esc(m.title)}${m.locked ? " (비공개)" : ""}</option>`).join("");
     $("fVillage").innerHTML = `<option value="">모든 마을</option>` + vs.map((v) => `<option>${F.esc(v)}</option>`).join("");
     $("fMission").value = filt.mission;
     $("fVillage").value = filt.village;
@@ -185,7 +185,7 @@
             </div>
             <span class="pill ${F.STATUS_CLASS[r.status] || "wait"}">${F.esc(r.status)}</span>
           </div>
-          <div class="c-ms">${r.missions.map((n) => `<span class="mchip" title="${F.esc(mTitle(n))}">${n}주차</span>`).join("")}</div>
+          <div class="c-ms">${r.missions.map((n) => `<span class="mchip" title="${F.esc(mTitle(n))}">${F.mshort(n)}</span>`).join("")}</div>
           ${r.message ? `<div class="c-msg">${F.esc(r.message)}</div>` : ""}
           ${r.status === "반려" && r.memo ? `<div class="c-memo">반려 이유: ${F.esc(r.memo)}</div>` : ""}
           <div class="c-act">${actions}</div>
@@ -195,7 +195,7 @@
 
   function renderPeople() {
     const ps = people().sort((a, b) => b.okN - a.okN || a.village.localeCompare(b.village, "ko") || a.name.localeCompare(b.name, "ko"));
-    const head = `<tr><th>이름</th><th>마을</th><th>뒷자리</th><th class="c">인증 수</th>${missions.map((m) => `<th class="c" title="${F.esc(m.title)}">${m.no}주차${m.locked ? `<br><small style="font-weight:400;opacity:.75">비공개</small>` : ""}</th>`).join("")}<th class="c">승인 미션</th><th>최근 인증</th></tr>`;
+    const head = `<tr><th>이름</th><th>마을</th><th>뒷자리</th><th class="c">인증 수</th>${missions.map((m) => `<th class="c" title="${F.esc(m.title)}">${F.mshort(m.no)}${m.locked ? `<br><small style="font-weight:400;opacity:.75">비공개</small>` : ""}</th>`).join("")}<th class="c">승인 미션</th><th>최근 인증</th></tr>`;
     if (!ps.length) { $("peopleTable").innerHTML = `<thead>${head}</thead><tbody><tr><td colspan="${missions.length + 6}" style="text-align:center;padding:30px">아직 참가자가 없어요</td></tr></tbody>`; return; }
     const body = ps.map((p) => {
       const full = p.okN === missions.length;
@@ -220,7 +220,7 @@
   }
   function renderVillages() {
     const { total, list } = villageStats();
-    const head = `<tr><th>마을</th>${missions.map((m) => `<th class="c">${m.no}주차</th>`).join("")}<th class="c">미션 합계</th><th class="c">인증 횟수</th><th class="c">참여 인원</th></tr>`;
+    const head = `<tr><th>마을</th>${missions.map((m) => `<th class="c">${F.mshort(m.no)}</th>`).join("")}<th class="c">미션 합계</th><th class="c">인증 횟수</th><th class="c">참여 인원</th></tr>`;
     const row = (v, cls) => `<tr class="${cls || ""}"><td>${F.esc(v.village)}</td>${v.per.map((n) => `<td class="c">${n || ""}</td>`).join("")}<td class="c"><b>${v.sum}</b></td><td class="c">${v.subs}</td><td class="c">${v.people}</td></tr>`;
     $("villageTable").innerHTML = `<thead>${head}</thead><tbody>${row(total, "full")}${list.map((v) => row(v)).join("")}</tbody>`;
   }
@@ -237,9 +237,9 @@
     const max = Math.max(1, ...st.map((s) => s.total));
     $("missionBars").innerHTML = st.map((s) => `
       <div class="paper mbar">
-        <div class="num">${s.no}</div>
+        <div class="num">${F.isSurprise(s.no) ? "★" : s.no}</div>
         <div style="min-width:0">
-          <div class="wk">${s.no}주차 미션${s.locked ? " · 아직 비공개" : ""}</div>
+          <div class="wk">${F.mlong(s.no)}${s.locked ? " · 아직 비공개" : ""}</div>
           <div class="mt">${F.esc(s.title)}</div>
           <div class="track" role="img" aria-label="승인 ${s.ok}건, 대기 ${s.wait}건">
             <span class="ok" style="width:${(s.ok / max) * 100}%"></span><span class="wait" style="width:${(s.wait / max) * 100}%"></span>
@@ -331,7 +331,7 @@
     if (typeof XLSX === "undefined") { F.toast("엑셀 도구를 불러오지 못했어요. 새로고침 후 다시 눌러주세요.", true); return; }
     const link = (p) => (p && p.url && !String(p.url).startsWith("data:") ? p.url : p ? "(예시 사진)" : "");
     const maxPh = Math.max(1, ...rows.map((r) => r.photos.length));
-    const mCols = missions.map((m) => `${m.no}주차`);
+    const mCols = missions.map((m) => F.mshort(m.no));
 
     const sub = [["제출ID", "제출시각", "이름", "마을", "전화뒷자리", ...mCols, "선택한 미션", "한마디", "상태", "반려 이유", "처리시각", ...Array.from({ length: maxPh }, (_, i) => `사진${i + 1}`)]];
     rows.slice().sort((a, b) => String(a.time).localeCompare(String(b.time))).forEach((r) => {
@@ -342,11 +342,11 @@
     });
 
     const ps = people().sort((a, b) => a.village.localeCompare(b.village, "ko") || a.name.localeCompare(b.name, "ko"));
-    const ppl = [["이름", "마을", "전화뒷자리", "인증 횟수", ...missions.map((m) => `${m.no}주차 ${m.title} (횟수)`), "승인된 미션 수", "완주", "최근 인증"]];
+    const ppl = [["이름", "마을", "전화뒷자리", "인증 횟수", ...missions.map((m) => `${F.mshort(m.no)} ${m.title} (횟수)`), "승인된 미션 수", "완주", "최근 인증"]];
     ps.forEach((p) => ppl.push([p.name, p.village, p.phone4, p.count, ...missions.map((m) => p.cnt[m.no] || (p.st[m.no] === "반려" ? "반려" : "")), p.okN, p.okN === missions.length ? "완주" : "", F.fmtFull(p.last)]));
 
-    const ms = [["주차", "미션 이름", "인증 건수", "승인", "확인 대기", "반려", "승인받은 사람 수"]];
-    missionStats().forEach((s) => ms.push([s.no, s.title, s.total, s.ok, s.wait, s.rej, s.okPeople]));
+    const ms = [["미션", "미션 이름", "인증 건수", "승인", "확인 대기", "반려", "승인받은 사람 수"]];
+    missionStats().forEach((s) => ms.push([F.mshort(s.no), s.title, s.total, s.ok, s.wait, s.rej, s.okPeople]));
 
     const wb = XLSX.utils.book_new();
     const add = (aoa, name, widths) => {
@@ -359,7 +359,7 @@
     add(ppl, "참가자별 현황", [10, 10, 10, 9, ...missions.map(() => 16), 13, 7, 17]);
     add(ms, "미션별 현황", [9, 26, 10, 7, 9, 7, 15]);
     const vs = villageStats();
-    const vil = [["마을", ...missions.map((m) => `${m.no}주차`), "미션 합계", "인증 횟수", "참여 인원"]];
+    const vil = [["마을", ...missions.map((m) => F.mshort(m.no)), "미션 합계", "인증 횟수", "참여 인원"]];
     [vs.total, ...vs.list].forEach((v) => vil.push([v.village, ...v.per, v.sum, v.subs, v.people]));
     add(vil, "마을별 현황", [16, ...missions.map(() => 8), 10, 10, 10]);
 

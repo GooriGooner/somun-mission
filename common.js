@@ -63,6 +63,12 @@
 </svg>`;
   }
 
+  /* ---------- 미션 이름표 (1~5: 주차, 6~: 깜짝 미션) ---------- */
+  const WEEKLY = 5;
+  const isSurprise = (n) => Number(n) > WEEKLY;
+  const mshort = (n) => (isSurprise(n) ? `깜짝${n - WEEKLY}` : `${n}주차`);
+  const mlong = (n) => (isSurprise(n) ? `깜짝 미션 ${n - WEEKLY}` : `${n}주차 미션`);
+
   /* ---------- 유틸 ---------- */
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -131,7 +137,9 @@
       { no: 2, title: "", desc: "", locked: true },
       { no: 3, title: "", desc: "", locked: true },
       { no: 4, title: "", desc: "", locked: true },
-      { no: 5, title: "", desc: "", locked: true }
+      { no: 5, title: "", desc: "", locked: true },
+      { no: 6, title: "금요철야 예배 나와서 태신자를 위해 기도하기", desc: "", locked: false },
+      { no: 7, title: "야베스 새벽예배 나와서 태신자를 위해 기도하기", desc: "", locked: false }
     ],
     villages: ["믿음", "소망", "사랑", "운영위원회", "새가족(웰컴팀)"]
   };
@@ -210,7 +218,7 @@
           }
           case "list":
             if (p.password !== "demo") return reject(new Error("비밀번호가 맞지 않아요. (미리보기 비밀번호: demo)"));
-            return resolve({ ok: true, rows: JSON.parse(JSON.stringify(demoRows)), sheetUrl: "", missions: DEMO_CONFIG.missions.map((m) => ({ ...m, title: m.title || `${m.no}주차 미션 (미정)` })), villages: DEMO_CONFIG.villages });
+            return resolve({ ok: true, rows: JSON.parse(JSON.stringify(demoRows)), sheetUrl: "", missions: DEMO_CONFIG.missions.map((m) => ({ ...m, title: m.title || `${mlong(m.no)} (미정)` })), villages: DEMO_CONFIG.villages });
           case "review": {
             if (p.password !== "demo") return reject(new Error("비밀번호가 맞지 않아요."));
             const at = new Date().toISOString();
@@ -226,5 +234,5 @@
     });
   }
 
-  window.Festival = { CFG, DEMO, doodle, stampSVG, esc, fmtTime, fmtFull, toast, shrinkImage, call, STATUS_CLASS };
+  window.Festival = { CFG, DEMO, WEEKLY, isSurprise, mshort, mlong, doodle, stampSVG, esc, fmtTime, fmtFull, toast, shrinkImage, call, STATUS_CLASS };
 })();

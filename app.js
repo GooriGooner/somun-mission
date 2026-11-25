@@ -69,14 +69,14 @@
     }
     $("missions").innerHTML = missions.map((m) => m.locked ? `
       <div class="mission locked" aria-disabled="true">
-        <span class="num">${m.no}</span>
-        <span class="txt"><span class="wk">${m.no}주차 미션</span><span class="mt">아직 비공개예요</span><span class="md" style="display:block">공개되면 여기서 바로 인증할 수 있어요</span></span>
+        <span class="num">${F.isSurprise(m.no) ? "★" : m.no}</span>
+        <span class="txt"><span class="wk">${F.mlong(m.no)}</span><span class="mt">아직 비공개예요</span><span class="md" style="display:block">공개되면 여기서 바로 인증할 수 있어요</span></span>
         <span class="chk">${F.doodle("lock")}</span>
       </div>` : `
-      <label class="mission${picked.has(m.no) ? " on" : ""}" data-no="${m.no}">
+      <label class="mission${picked.has(m.no) ? " on" : ""}${F.isSurprise(m.no) ? " surprise" : ""}" data-no="${m.no}">
         <input type="checkbox" value="${m.no}" ${picked.has(m.no) ? "checked" : ""}>
-        <span class="num">${m.no}</span>
-        <span class="txt"><span class="wk">${m.no}주차 미션</span><span class="mt">${F.esc(m.title)}</span>${m.desc ? `<span class="md" style="display:block">${F.esc(m.desc)}</span>` : ""}</span>
+        <span class="num">${F.isSurprise(m.no) ? "★" : m.no}</span>
+        <span class="txt"><span class="wk">${F.mlong(m.no)}${F.isSurprise(m.no) ? `<em class="new">NEW</em>` : ""}</span><span class="mt">${F.esc(m.title)}</span>${m.desc ? `<span class="md" style="display:block">${F.esc(m.desc)}</span>` : ""}</span>
         <span class="chk">${F.doodle("check")}</span>
       </label>`).join("");
     updatePicked();
@@ -90,7 +90,7 @@
     updatePicked();
   });
   function updatePicked() {
-    $("pickedCount").textContent = picked.size ? `${[...picked].sort((a, b) => a - b).map((n) => n + "주차").join(", ")} 미션 선택` : "";
+    $("pickedCount").textContent = picked.size ? `${[...picked].sort((a, b) => a - b).map(F.mshort).join(", ")} 미션 선택` : "";
   }
 
   /* ---------- 사진 ---------- */
@@ -168,7 +168,7 @@
       $("myName").value = name; $("myPhone").value = phone4;
       $("doneTitle").textContent = `${name}님, 인증이 접수됐어요!`;
       $("doneText").textContent = "관리자가 확인하면 도장판에 승인 도장이 찍혀요. 아래 도장판에서 진행 상황을 볼 수 있어요.";
-      $("doneStamps").innerHTML = ms.map((n) => `<span class="mchip">${n}주차</span>`).join("");
+      $("doneStamps").innerHTML = ms.map((n) => `<span class="mchip">${F.mshort(n)}</span>`).join("");
       $("form").hidden = true;
       $("done").hidden = false;
       $("done").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -245,12 +245,13 @@
     const cells = total.map((n) => {
       const s = state[n];
       const lk = (missions.find((m) => m.no === n) || {}).locked;
-      return `<div class="cell ${s || (lk ? "locked" : "")}" title="${n}주차 미션${lk ? " (비공개)" : ""}">${lk && !s ? F.doodle("lock") : `${n}<small>주차</small>`}${s === "ok" ? `<span class="tag">${times[n] > 1 ? `${times[n]}회` : "승인"}</span>` : s === "wait" ? `<span class="tag">확인 중</span>` : ""}</div>`;
+      const sp = F.isSurprise(n);
+      return `<div class="cell ${s || (lk ? "locked" : "")}${sp ? " surprise" : ""}" title="${F.mlong(n)}${lk ? " (비공개)" : ""}">${lk && !s ? F.doodle("lock") : sp ? `<small>깜짝</small>${n - F.WEEKLY}` : `${n}<small>주차</small>`}${s === "ok" ? `<span class="tag">${times[n] > 1 ? `${times[n]}회` : "승인"}</span>` : s === "wait" ? `<span class="tag">확인 중</span>` : ""}</div>`;
     }).join("");
     const list = records.slice().sort((a, b) => String(b.time).localeCompare(String(a.time))).map((r) => `
       <div class="my-item">
         <span class="when">${F.esc(F.fmtTime(r.time))}</span>
-        ${(r.missions || []).map((n) => `<span class="mchip">${n}주차</span>`).join("")}
+        ${(r.missions || []).map((n) => `<span class="mchip">${F.mshort(n)}</span>`).join("")}
         <span class="pill ${F.STATUS_CLASS[r.status] || "wait"}">${F.esc(r.status)}</span>
         ${r.status === "반려" && r.memo ? `<span class="hint">· ${F.esc(r.memo)}</span>` : ""}
       </div>`).join("");

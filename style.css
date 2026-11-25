@@ -462,3 +462,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .rank-empty { text-align: center; padding: 18px 8px; color: var(--ink-2); }
 .rank-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; font-size: 12.5px; color: var(--ink-2); }
+
+/* ---------- 깜짝 미션 ---------- */
+.mission.surprise { border-color: var(--no); box-shadow: 3px 3px 0 var(--no); }
+.mission.surprise .num { background: var(--no-bg); color: var(--no); border-color: var(--no); font-size: 28px; }
+.mission.surprise .wk { color: var(--no); }
+.mission.surprise.on .num { background: var(--no); color: #fff; border-color: var(--ink); }
+.mission .wk .new {
+  font-style: normal; font-size: 10px; letter-spacing: .5px;
+  margin-left: 6px; padding: 1px 6px; border-radius: 8px;
+  background: var(--no); color: #fff; vertical-align: 1px;
+}
+.cell.surprise { border-color: var(--no); color: var(--no); }
+.cell.surprise small { margin: 0 1px 0 0; align-self: center; font-size: .4em; }
+.cell.surprise.ok { background: var(--no-bg); color: var(--no); }
+.cell.surprise.ok .tag { background: var(--no); color: #fff; }
